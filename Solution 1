@@ -1,0 +1,19 @@
+Solution 1:
+
+import java.lang.Math;
+import java.util.ArrayList;
+public class Solution {
+    public static int[] solution(int area) {
+        int i = area, temp, sum = 0;
+        ArrayList<Integer> temp_squares = new ArrayList<Integer>();
+        while(i > 0){
+            temp = (int) Math.sqrt(i);
+            temp = temp*temp;
+            temp_squares.add(temp);
+            i = i - temp;
+            sum = sum + temp;
+        }
+        int[] squares = temp_squares.stream().mapToInt(j -> j).toArray();
+        return squares;
+    }
+}
