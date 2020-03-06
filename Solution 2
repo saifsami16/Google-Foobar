@@ -1,0 +1,78 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+
+public class Solution {
+    public static String[] solution(String[] l) {
+        String[] arr_max = {null,null,null};
+        int index = 0;
+        String[] j_arr = {null, null, null};
+        int n =l.length;
+        //arr[1]=null;
+        int i= 0;
+        ArrayList<String> result = new ArrayList<String>();
+        while(i<n){
+            if(l[i] == (null)){
+                i++;
+                continue;
+            }
+            Arrays.fill(arr_max, null); //declaring every element to be null
+
+            for(int j = 0; j < n; j++){
+                if(l[j] == null)continue;
+                Arrays.fill(j_arr, null);
+                j_arr =l[j].split("\\.",3);
+                if(arr_max[0] == null) {
+                    System.arraycopy(j_arr, 0, arr_max, 0, j_arr.length);
+                    index = j;
+                    continue;
+                }
+                else{
+                    if(Integer.parseInt(arr_max[0]) > Integer.parseInt(j_arr[0])){
+                        Arrays.fill(arr_max, null);
+                        System.arraycopy(j_arr, 0, arr_max, 0, j_arr.length);
+                        index = j;
+                        continue;
+                    }
+                    else if(Integer.parseInt(arr_max[0]) == Integer.parseInt(j_arr[0])){
+
+                        if(arr_max[1] == null){
+                            continue;
+                        } else if(j_arr.length == 1){
+                            Arrays.fill(arr_max, null);
+                            System.arraycopy(j_arr, 0, arr_max, 0, j_arr.length);
+                            index = j;
+                            continue;
+                        } else if(Integer.parseInt(arr_max[1]) > Integer.parseInt(j_arr[1])){
+                            Arrays.fill(arr_max, null);
+                            System.arraycopy(j_arr, 0, arr_max, 0, j_arr.length);
+                            index = j;
+                            continue;
+                        }
+                        else if(Integer.parseInt(arr_max[1]) == Integer.parseInt(j_arr[1])) {
+
+                             if (arr_max[2] == null) {
+
+                                continue;
+                            } else if (j_arr.length == 2) {
+                                 Arrays.fill(arr_max, null);
+                                 System.arraycopy(j_arr, 0, arr_max, 0, j_arr.length);
+                                 index = j;
+                                continue;
+                            } else if (Integer.parseInt(arr_max[2]) > Integer.parseInt(j_arr[2])) {
+                                Arrays.fill(arr_max, null);
+                                System.arraycopy(j_arr, 0, arr_max, 0, j_arr.length);
+                                index = j;
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
+            result.add(l[index]);
+           l[index] = null;
+
+        }
+        String[] arr_result = result.toArray(new String[result.size()]);
+        return arr_result;
+    }
+}
