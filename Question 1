@@ -43,3 +43,23 @@ Output:
     15129,169,25,1
 
 Use verify [file] to test your solution and see how it does. When you are finished editing your code, use submit [file] to submit your answer. If your solution passes the test cases, it will be removed from your home folder.
+
+Solution 1:
+
+import java.lang.Math;
+import java.util.ArrayList;
+public class Solution {
+    public static int[] solution(int area) {
+        int i = area, temp, sum = 0;
+        ArrayList<Integer> temp_squares = new ArrayList<Integer>();
+        while(i > 0){
+            temp = (int) Math.sqrt(i);
+            temp = temp*temp;
+            temp_squares.add(temp);
+            i = i - temp;
+            sum = sum + temp;
+        }
+        int[] squares = temp_squares.stream().mapToInt(j -> j).toArray();
+        return squares;
+    }
+}
