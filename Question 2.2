@@ -50,3 +50,54 @@ Output:
     3
 
 Use verify [file] to test your solution and see how it does. When you are finished editing your code, use submit [file] to submit your answer. If your solution passes the test cases, it will be removed from your home folder.
+
+Solution 2.2:
+
+import java.util.Arrays;
+import java.util.HashMap;
+public class Solution {
+    public static int solution(String n, int b) {
+        HashMap<String, Integer> map1 = new HashMap<String, Integer>();
+        int k;  //length of n
+        boolean found = false;
+        int counter = 0;
+        String z;
+        int cycle;
+
+        while(!found){
+            k = n.length();
+            z = subtract(descending(n), ascending(n), b);    //function so to follow subtraction w.r.t bases
+            n = leading_zeros(z,k);
+            if(map1.containsKey(n))found = true;
+            else map1.put(n,counter);
+            counter++;
+        }
+        cycle = counter-1-map1.get(n);  // .get() returns the value of the key->n
+        return cycle;
+    }
+    public static String descending(String n){ //return as int
+        char[] tempArray = n.toCharArray();
+        Arrays.sort(tempArray);
+        String reverse = new StringBuilder(new String(tempArray)).reverse().toString();
+        return reverse;
+    }
+    public static String ascending(String n){ //return as int
+        char[] tempArray = n.toCharArray();
+        Arrays.sort(tempArray);
+        String x = new String(tempArray);
+        return x;
+    }
+    public static String leading_zeros(String z, int k){//convert to string as well
+//        String a = String.format("%0"+k+"d", z);
+        if(k == z.length())return z;
+        String a = String.format("%0"+(k - z.length()) +"d%s",0 ,z);
+        return a;
+    }
+    public static String subtract(String a, String b, int base){    //a-b
+        int x = Integer.parseInt(a,base);
+        int y = Integer.parseInt(b,base);
+        String result = Integer.toString(x-y,base);
+        return result;
+    }
+}
+
