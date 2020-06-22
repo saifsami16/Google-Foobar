@@ -1,0 +1,282 @@
+Doomsday Fuel
+=============
+
+Making fuel for the LAMBCHOP's reactor core is a tricky process because of the exotic matter involved. It starts as raw ore, then during processing, begins randomly changing between forms, eventually reaching a stable form. There may be multiple stable forms that a sample could ultimately reach, not all of which are useful as fuel. 
+
+Commander Lambda has tasked you to help the scientists increase fuel creation efficiency by predicting the end state of a given ore sample. You have carefully studied the different structures that the ore can take and which transitions it undergoes. It appears that, while random, the probability of each structure transforming is fixed. That is, each time the ore is in 1 state, it has the same probabilities of entering the next state (which might be the same state).  You have recorded the observed transitions in a matrix. The others in the lab have hypothesized more exotic forms that the ore can become, but you haven't seen all of them.
+
+Write a function solution(m) that takes an array of array of nonnegative ints representing how many times that state has gone to the next state and return an array of ints for each terminal state giving the exact probabilities of each terminal state, represented as the numerator for each state, then the denominator for all of them at the end and in simplest form. The matrix is at most 10 by 10. It is guaranteed that no matter which state the ore is in, there is a path from that state to a terminal state. That is, the processing will always eventually end in a stable state. The ore starts in state 0. The denominator will fit within a signed 32-bit integer during the calculation, as long as the fraction is simplified regularly. 
+
+For example, consider the matrix m:
+[
+  [0,1,0,0,0,1],  # s0, the initial state, goes to s1 and s5 with equal probability
+  [4,0,0,3,2,0],  # s1 can become s0, s3, or s4, but with different probabilities
+  [0,0,0,0,0,0],  # s2 is terminal, and unreachable (never observed in practice)
+  [0,0,0,0,0,0],  # s3 is terminal
+  [0,0,0,0,0,0],  # s4 is terminal
+  [0,0,0,0,0,0],  # s5 is terminal
+]
+So, we can consider different paths to terminal states, such as:
+s0 -> s1 -> s3
+s0 -> s1 -> s0 -> s1 -> s0 -> s1 -> s4
+s0 -> s1 -> s0 -> s5
+Tracing the probabilities of each, we find that
+s2 has probability 0
+s3 has probability 3/14
+s4 has probability 1/7
+s5 has probability 9/14
+So, putting that together, and making a common denominator, gives an answer in the form of
+[s2.numerator, s3.numerator, s4.numerator, s5.numerator, denominator] which is
+[0, 3, 2, 9, 14].
+
+Languages
+=========
+
+To provide a Java solution, edit Solution.java
+To provide a Python solution, edit solution.py
+
+Test cases
+==========
+Your code should pass the following test cases.
+Note that it may also be run against hidden test cases not shown here.
+
+-- Java cases --
+Input:
+Solution.solution({{0, 2, 1, 0, 0}, {0, 0, 0, 3, 4}, {0, 0, 0, 0, 0}, {0, 0, 0, 0,0}, {0, 0, 0, 0, 0}})
+Output:
+    [7, 6, 8, 21]
+
+Input:
+Solution.solution({{0, 1, 0, 0, 0, 1}, {4, 0, 0, 3, 2, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}})
+Output:
+    [0, 3, 2, 9, 14]
+
+-- Python cases --
+Input:
+solution.solution([[0, 2, 1, 0, 0], [0, 0, 0, 3, 4], [0, 0, 0, 0, 0], [0, 0, 0, 0,0], [0, 0, 0, 0, 0]])
+Output:
+    [7, 6, 8, 21]
+
+Input:
+solution.solution([[0, 1, 0, 0, 0, 1], [4, 0, 0, 3, 2, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]])
+Output:
+    [0, 3, 2, 9, 14]
+    
+    
+Solution:
+
+public class Solution {
+        public static int[] solution(int[][] m) {
+               if(m.length == 1)return new int[]{1, 1};            //One state probability
+                int[] sum = new int[m.length];
+                int[] sortOrder = new int[m.length];
+                int countTerminal = 0;
+                for(int i = 0; i < m.length ; i++){                 /* Row Sum */
+                    for(int j = 0; j < m[0].length; j++)sum[i] += m[i][j];
+                    if(sum[i] == 0){
+                        sortOrder[countTerminal] = i;
+                        countTerminal++;}
+                }
+                for(int i = 0, it = countTerminal; i < m.length; i++){
+                    if(sum[i] != 0){
+                        sortOrder[it] = i;
+                        it++;
+                    }
+                }
+                double[][] sortM = new double[m.length][m.length];
+
+                for(int i = 0; i < m.length; i ++ ){
+                    for(int j = 0; j < m.length; j++){
+                        sortM[i][j] = m[sortOrder[i]][sortOrder[j]];
+                        if(sum[sortOrder[i]]!=0) sortM[i][j] /= sum[sortOrder[i]];
+                    }
+                }
+                        /*Solving with steady state probability of Markov chain using Matrices*/
+                int sizeQ = m.length - countTerminal;
+                double[][] Q = new double[sizeQ][sizeQ];
+                for(int i = 0;i<sizeQ;i++){                 //Extracting Q from sortM
+                    System.arraycopy(sortM[i + countTerminal], countTerminal, Q[i], 0, sizeQ);
+                }
+
+                for(int i = 0;i<sizeQ;i++){                 // Q = I - Q;
+                    for(int j = 0; j< sizeQ; j++){
+                        if(i==j)Q[i][j] = 1 - Q[i][j];
+                        else Q[i][j] = -1 * Q[i][j];
+                    }
+                }
+
+                Q = invert(Q);                              // Q = Inverse (Q)
+
+                double[][] R = new double[sizeQ][countTerminal];
+                for(int i = 0;i<sizeQ;i++){
+                    System.arraycopy(sortM[i + countTerminal], 0, R[i], 0, countTerminal);
+                }
+
+                double[][] prob = mulMatrix(Q,R);           //Separating numerator and denominator
+                int[] numerator = new int[prob[0].length];
+                int[] denominator = new int[prob[0].length];
+                int[] last_temp = new int[prob[0].length];
+
+
+                for(int i = 0; i < prob[0].length;i++){
+                    int[] temp =  DecToFrac(prob[0][i]);
+                    numerator[i] = temp[0];
+                    denominator[i] = temp[1];
+                    last_temp[i] = temp[1];
+                }
+
+                long lcm = lcmFunc(last_temp);        //Making same denominator
+                int[] final_array = new int[numerator.length+1];
+                for(int i= 0; i < numerator.length; i++){
+                    final_array[i] = numerator[i]*(((int)lcm)/denominator[i]);
+
+                }
+                final_array[final_array.length-1] = (int)lcm;           //storing lcm at the last index
+
+                return final_array;
+
+            }
+
+            public static long lcmFunc(int[] element_array)
+            {
+                long lcmFunc = 1;
+                int divisor = 2;
+
+                while (true) {
+                    int counter = 0;
+                    boolean divisible = false;
+
+                    for (int i = 0; i < element_array.length; i++) {
+
+                        if (element_array[i] == 0)return 0;
+                        else if (element_array[i] < 0)element_array[i] = element_array[i] * (-1);
+                        if (element_array[i] == 1)counter++;
+                        
+                        if (element_array[i] % divisor == 0) {
+                            divisible = true;
+                            element_array[i] = element_array[i] / divisor;
+                        }
+                    }
+                    
+                    if (divisible)lcmFunc = lcmFunc * divisor;
+                    else divisor++;
+                    
+                    if (counter == element_array.length)  return lcmFunc;
+                }
+            }
+
+            static private int[] DecToFrac(double x){
+                double tolerance = 1.0E-10;
+                double h1=1; double h2=0;
+                double k1=0; double k2=1;
+                double b = x;
+                do {
+                    double a = Math.floor(b);
+                    double aux = h1; h1 = a*h1+h2; h2 = aux;
+                    aux = k1; k1 = a*k1+k2; k2 = aux;
+                    b = 1/(b-a);
+                } while (Math.abs(x-h1/k1) > x*tolerance);
+
+                return new int[]{(int)h1, (int)k1};
+            }
+
+            public static double[][] mulMatrix(double[][] firstMatrix, double[][] secondMatrix){
+                int r1 = firstMatrix.length;
+                int c1 = firstMatrix[0].length;
+                int c2 = secondMatrix[0].length;
+                double[][] product = new double[r1][c2];
+                for(int i = 0; i < r1; i++) {
+                    for (int j = 0; j < c2; j++) {
+                        for (int k = 0; k < c1; k++) {
+                            product[i][j] += firstMatrix[i][k] * secondMatrix[k][j];
+                        }
+                    }
+                }
+                return product;
+            }
+
+            public static double[][] invert(double[][] a)
+            {
+                int n = a.length;
+                double[][] x = new double[n][n];
+                double[][] b = new double[n][n];
+                int[] index = new int[n];
+                for (int i=0; i<n; ++i)
+                    b[i][i] = 1;
+
+                // Transform the matrix into an upper triangle
+                gaussian(a, index);
+
+                // Update the matrix b[i][j] with the ratios stored
+                for (int i=0; i<n-1; ++i)
+                    for (int j=i+1; j<n; ++j)
+                        for (int k=0; k<n; ++k)
+                            b[index[j]][k]
+                                    -= a[index[j]][i]*b[index[i]][k];
+
+                // Perform backward substitutions
+                for (int i=0; i<n; ++i)
+                {
+                    x[n-1][i] = b[index[n-1]][i]/a[index[n-1]][n-1];
+                    for (int j=n-2; j>=0; --j)
+                    {
+                        x[j][i] = b[index[j]][i];
+                        for (int k=j+1; k<n; ++k)
+                        {
+                            x[j][i] -= a[index[j]][k]*x[k][i];
+                        }
+                        x[j][i] /= a[index[j]][j];
+                    }
+                }
+                return x;
+            }
+
+            public static void gaussian(double[][] a, int[] index)
+            {
+                int n = index.length;
+                double[] c = new double[n];
+
+                for (int i=0; i<n; ++i)
+                    index[i] = i;
+
+                 for (int i=0; i<n; ++i)
+                {
+                    double c1 = 0;
+                    for (int j=0; j<n; ++j)
+                    {
+                        double c0 = Math.abs(a[i][j]);
+                        if (c0 > c1) c1 = c0;
+                    }
+                    c[i] = c1;
+                }
+
+                int k = 0;
+                for (int j=0; j<n-1; ++j)
+                {
+                    double pi1 = 0;
+                    for (int i=j; i<n; ++i)
+                    {
+                        double pi0 = Math.abs(a[index[i]][j]);
+                        pi0 /= c[index[i]];
+                        if (pi0 > pi1)
+                        {
+                            pi1 = pi0;
+                            k = i;
+                        }
+                    }
+
+                    int itmp = index[j];
+                    index[j] = index[k];
+                    index[k] = itmp;
+                    for (int i=j+1; i<n; ++i)
+                    {
+                        double pj = a[index[i]][j]/a[index[j]][j];
+
+                        a[index[i]][j] = pj;
+
+                        for (int l=j+1; l<n; ++l)
+                            a[index[i]][l] -= pj*a[index[j]][l];
+                    }
+                }
+            }
+        }
