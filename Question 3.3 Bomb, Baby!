@@ -1,3 +1,4 @@
+/*
 Bomb, Baby!
 ===========
 
@@ -49,7 +50,7 @@ Output:
     1
     
 Solution:
-
+*/
 
 import java.math.BigInteger;
 public class Solution {
