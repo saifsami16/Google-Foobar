@@ -1,3 +1,4 @@
+/*
 Hey, I Already Did That!
 ========================
 
@@ -52,6 +53,7 @@ Output:
 Use verify [file] to test your solution and see how it does. When you are finished editing your code, use submit [file] to submit your answer. If your solution passes the test cases, it will be removed from your home folder.
 
 Solution 2.2:
+*/
 
 import java.util.Arrays;
 import java.util.HashMap;
