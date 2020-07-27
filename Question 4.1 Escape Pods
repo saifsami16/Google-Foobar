@@ -1,3 +1,4 @@
+'''
 You've blown up the LAMBCHOP doomsday device and broken the bunnies out of Lambda's prison,
   and now you need to escape from the space station as quickly and as orderly as possible!
   The bunnies have all gathered in various locations throughout the station,
@@ -76,7 +77,9 @@ You've blown up the LAMBCHOP doomsday device and broken the bunnies out of Lambd
   solution.solution([0, 1], [4, 5], [[0, 0, 4, 6, 0, 0], [0, 0, 5, 2, 0, 0], [0, 0, 0, 0, 4, 4], [0, 0, 0, 0, 6, 6], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]])
   Output:
   16
+  
 Solution:
+'''
 
 def solution(entrances, exits, path):
     rowSum = [0] * len(path)  # initiating a list to store sum data of each path
